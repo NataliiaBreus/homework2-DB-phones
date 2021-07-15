@@ -25,7 +25,9 @@ class User {
   }
 
   static async dropTableIfExists () {
-    return await this._client.query(`DROP TABLE IF EXISTS "${this._tableName}" CASCADE;`);
+    return await this._client.query(
+      `DROP TABLE IF EXISTS "${this._tableName}" CASCADE;`
+    );
   }
 
   static async findAll () {
@@ -33,13 +35,15 @@ class User {
   }
 
   static async bulkCreate (users) {
-    return await this._client.query(
+    const { rows } = await this._client.query(
       `INSERT INTO "${
         this._tableName
       }" ("firstname", "lastname", "email", "is_male", "birthday", "height", "weight")
        VALUES ${extractUsers(users)}
+       RETURNING *
       `
     );
+    return rows;
   }
 
   static async deleteById (id) {

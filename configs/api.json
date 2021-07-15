@@ -1,0 +1,9 @@
+{
+  "baseURL": "https://randomuser.me/api/",
+  "get": {
+    "users": {
+      "results": 300,
+      "seed": "api_key"
+    }
+  }
+}
