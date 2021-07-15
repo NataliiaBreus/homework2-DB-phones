@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { loadUsers } = require('./api');
+const { loadUsers } = require('./utils/api');
 const { User, Phone, client } = require('./models');
 const { generatePhones, getRandomInt } = require('./utils');
 

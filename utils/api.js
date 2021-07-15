@@ -1,4 +1,3 @@
-const querystring = require('querystring');
 const axios = require('axios');
 const config = require('../configs/api.json');
 
@@ -15,9 +14,11 @@ module.exports.loadUsers = async (options = {}) => {
     ...options
   };
 
+  const urlQueryParams = new URLSearchParams(queryParams);
+
   const {
     data: { results: users }
-  } = await http.get(`?${querystring.stringify(queryParams)}`);
+  } = await http.get(`?${urlQueryParams.toString()}`);
 
   return users;
 };
