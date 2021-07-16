@@ -21,13 +21,6 @@ function extractUsers (users) {
     .join(',');
 }
 
-const phone1 = {
-  brand: 'Sumsung',
-  model: 'S10',
-  price: 1000,
-  quantity: 500,
-};
-
 const PHONE_BRANDS = [
   'Samsung',
   'Nokia',

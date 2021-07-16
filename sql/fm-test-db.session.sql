@@ -334,14 +334,6 @@ FROM "users"
 WHERE AGE("birthday") BETWEEN MAKE_INTERVAL(20) AND MAKE_INTERVAL(30)
 GROUP BY "is_male";
 /* */
-SELECT "firstname",
-  COUNT("id") AS "count_people"
-FROM "users"
-GROUP BY "firstname"
-ORDER BY "count_people" DESC,
-  "firstname" ASC
-LIMIT 10;
-/* */
 SELECT *
 FROM "users"
 ORDER BY "firstname" ASC;
@@ -371,3 +363,74 @@ FROM "users"
 WHERE "height" > 2
 GROUP BY "is_male"
 ORDER BY "average_weight";
+/* */
+SELECT "firstname",
+  COUNT("id") AS "count_people"
+FROM "users"
+GROUP BY "firstname"
+HAVING COUNT("id") > 1
+ORDER BY "count_people" DESC,
+  "firstname" ASC
+  /* Извлечь все бренды телефонов, в которых кол-во телефонов > 3k*/
+SELECT "brand",
+  SUM("quantity")
+FROM phones
+GROUP BY "brand"
+HAVING SUM("quantity") > 3000;
+/* 
+ Выбрать количество людей одинакового возраста, 
+ сгруппировать по возрасту,
+ отображать только те группы, в которых кол-во людей одинакового возраста > 5
+ */
+SELECT "Age",
+  COUNT("id") AS "Кол-во людей"
+FROM (
+    SELECT EXTRACT(
+        YEAR
+        FROM AGE("birthday")
+      ) AS "Age",
+      *
+    FROM "users"
+  ) AS "users_with_age"
+GROUP BY "Age"
+HAVING COUNT("id") > 5
+ORDER BY "Кол-во людей" DESC;
+
+/*
+  LIKE  - С учётом регистра
+  ILIKE - Без учёта регистра
+
+  * - Всё что угодно, в любых кол-вах    => %
+  ? - Всё что угодно, один раз           => _
+
+  'my test value' LIKE '%test%' // TRUE
+  'test' LIKE '_est' // TRUE
+*/
+
+SELECT "firstname" FROM "users"
+WHERE "firstname" ILIKE 'al%';
+
+/*
+SIMILAR TO
+
+REGEXP:
+~ - Соответствие с учётом регистра
+~* - Соответствие без учёта регистра
+
+!~ - Несоответствие с учётом регистра
+!~* - Несоответствие без учёта регистра
+*/
+
+SELECT "firstname" FROM "users"
+WHERE "firstname" ~ '.*i{2}.*'
+
+/*
+  Найти все firstname, которые начинаются с буквы M,
+  заканчиваются буквой n 
+  и содержат в себе 2 последовательные буквы e
+*/
+
+SELECT "firstname" FROM "users"
+WHERE "firstname" ~ 'M.*e{2}.*n';
+
+
