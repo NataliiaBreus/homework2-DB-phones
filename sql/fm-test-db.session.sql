@@ -560,3 +560,105 @@ INSERT INTO "phones" ("brand", "model", "price", "quantity")
 VALUES ('test', 'T1', 15000, 100),
   ('test', 'T2', 25000, 200),
   ('test', 'T3', 35000, 300);
+/* */
+CREATE SCHEMA wf;
+DROP TABLE wf.departments;
+CREATE TABLE wf.departments (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(64) NOT NULL
+);
+/* */
+DROP TABLE wf.employees;
+CREATE TABLE wf.employees (
+  id SERIAL PRIMARY KEY,
+  department_id INT REFERENCES wf.departments ON DELETE CASCADE,
+  name VARCHAR(128) NOT NULL,
+  hire_date DATE NOT NULL CHECK(hire_date <= CURRENT_TIMESTAMP),
+  salary NUMERIC(10, 2) NOT NULL CHECK(salary >= 0)
+);
+/* */
+INSERT INTO wf.departments("name")
+VALUES ('SALES'),
+  ('HR'),
+  ('DEVELOPMENT'),
+  ('QA'),
+  ('TOP MANAGEMENT');
+INSERT INTO wf.employees ("name", salary, hire_date, department_id)
+VALUES ('TEST TESTov', 10000, '1990-1-1', 1),
+  ('John Doe', 6000, '2010-1-1', 2),
+  ('Matew Doe', 3456, '2020-1-1', 2),
+  ('Matew Doe1', 53462, '2020-1-1', 3),
+  ('Matew Doe2', 124543, '2012-1-1', 4),
+  ('Matew Doe3', 12365, '2004-1-1', 5),
+  ('Matew Doe4', 1200, '2000-8-1', 5),
+  ('Matew Doe5', 2535, '2010-1-1', 2),
+  ('Matew Doe6', 1000, '2014-1-1', 3),
+  ('Matew Doe6', 63456, '2017-6-1', 1),
+  ('Matew Doe7', 1000, '2020-1-1', 3),
+  ('Matew Doe8', 346434, '2015-4-1', 2),
+  ('Matew Doe9', 3421, '2018-1-1', 3),
+  ('Matew Doe0', 34563, '2013-2-1', 5),
+  ('Matew Doe10', 2466, '2011-1-1', 1),
+  ('Matew Doe11', 9999, '1999-1-1', 5),
+  ('TESTing 1', 1000, '2019-1-1', 2);
+/* Кол-во сотрудников в отделе */
+SELECT d.name,
+  COUNT(e.id)
+FROM wf.departments d
+  JOIN wf.employees e ON e.department_id = d.id
+GROUP BY d.id;
+/* Сотрудник и название отдела */
+SELECT e.*,
+  d.name AS "dep"
+FROM wf.employees e
+  JOIN wf.departments d ON e.department_id = d.id;
+/* Средняя зарплата по отделам */
+SELECT d.name,
+  AVG(e.salary)
+FROM wf.departments d
+  JOIN wf.employees e ON e.department_id = d.id
+GROUP BY d.id;
+/* user info | dep info | avg salary by dep */
+SELECT e.*,
+  d.name AS "dep",
+  d.emp_in_dep,
+  d.avg_salary
+FROM wf.employees e
+  JOIN (
+    SELECT d.id,
+      d.name,
+      COUNT(e.id) AS "emp_in_dep",
+      AVG(e.salary) AS "avg_salary"
+    FROM wf.departments d
+      JOIN wf.employees e ON e.department_id = d.id
+    GROUP BY d.id
+  ) d ON e.department_id = d.id;
+/* */
+SELECT e.*,
+  COUNT(e.id) OVER (PARTITION BY d.id) AS "emp_in_dep",
+  AVG(e.salary) OVER (PARTITION BY d.id) AS "avg_salary",
+  SUM(e.salary) OVER (PARTITION BY d.id),
+  SUM(e.salary) OVER ()
+FROM wf.departments d
+  JOIN wf.employees e ON e.department_id = d.id;
+/* */
+SELECT e.*,
+  COUNT(e.id) OVER w AS "emp_in_dep",
+  AVG(e.salary) OVER w AS "avg_salary",
+  SUM(e.salary) OVER w,
+  SUM(e.salary) OVER ()
+FROM wf.departments d
+  JOIN wf.employees e ON e.department_id = d.id WINDOW w AS (PARTITION BY d.id);
+/* */
+SELECT e.*,
+  SUM(e.salary) OVER (
+    PARTITION BY d.id
+    ORDER BY e.salary ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+  ) AS "sum_salary_by_dep",
+  SUM(e.salary) OVER ()
+FROM wf.departments d
+  JOIN wf.employees e ON e.department_id = d.id;
+
+/* Каскадное удаление данных */
+DELETE FROM wf.departments
+WHERE id = 5;
