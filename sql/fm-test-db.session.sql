@@ -544,13 +544,19 @@ GROUP BY u.id,
   u.lastname,
   u.email;
 /* */
-
 /* email пользователей, которые делали заказы
  бренда Honor
  */
- SELECT u.email, p.brand FROM users u
- JOIN orders o ON o."userId" = u.id
- JOIN phones_to_orders pto ON pto."orderId" = o.id
- JOIN phones p ON p.id = pto."phoneId"
- WHERE p.brand ILIKE 'honor'
- GROUP BY u.email, p.brand
+SELECT u.email,
+  p.brand
+FROM users u
+  JOIN orders o ON o."userId" = u.id
+  JOIN phones_to_orders pto ON pto."orderId" = o.id
+  JOIN phones p ON p.id = pto."phoneId"
+WHERE p.brand ILIKE 'honor'
+GROUP BY u.email,
+  p.brand;
+INSERT INTO "phones" ("brand", "model", "price", "quantity")
+VALUES ('test', 'T1', 15000, 100),
+  ('test', 'T2', 25000, 200),
+  ('test', 'T3', 35000, 300);
