@@ -28,6 +28,7 @@ CREATE TABLE phones (
   "description" TEXT CHECK("description" != '')
 );
 /* */
+
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   "userId" INT REFERENCES users(id),
